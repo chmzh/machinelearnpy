@@ -41,7 +41,8 @@ def createTree(dataSet, minSup=3):  # create FP-tree from dataset but don't mine
     for trans in dataSet:  # first pass counts frequency of occurance
         for item in trans:
             headerTable[item] = headerTable.get(item, 0) + dataSet[trans]
-    headerTable = dict([(k, v) for k, v in headerTable.items() if v >= minSup])
+    headerTable = {k:v for k, v in headerTable.items() if v >= minSup}
+    #headerTable = dict([(k, v) for k, v in headerTable.items() if v >= minSup])
     # keys = headerTable.keys();
     # for k in keys:  #remove items not meeting minSup
     # if headerTable[k] < minSup:
