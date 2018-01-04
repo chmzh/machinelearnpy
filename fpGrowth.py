@@ -28,7 +28,6 @@ class treeNode:
         for child in self.children.values():
             child.disp(ind + 1)
 
-
 rootNode = treeNode('pyramid', 9, None)
 rootNode.children['eye'] = treeNode('eye', 13, None)
 rootNode.children['phoenix'] = treeNode('phoenix', 3, None)
@@ -42,7 +41,7 @@ def createTree(dataSet, minSup=3):  # create FP-tree from dataset but don't mine
         for item in trans:
             headerTable[item] = headerTable.get(item, 0) + dataSet[trans]
     headerTable = {k:v for k, v in headerTable.items() if v >= minSup}
-    #headerTable = dict([(k, v) for k, v in headerTable.items() if v >= minSup])
+    #headerTable = dict([(k,v) for k, v in headerTable.items() if v >= minSup])
     # keys = headerTable.keys();
     # for k in keys:  #remove items not meeting minSup
     # if headerTable[k] < minSup:
@@ -62,6 +61,9 @@ def createTree(dataSet, minSup=3):  # create FP-tree from dataset but don't mine
         if len(localD) > 0:
             orderedItems = [v[0] for v in sorted(localD.items(), key=lambda p: p[1], reverse=True)]
             updateTree(orderedItems, retTree, headerTable, count)  # populate tree with ordered freq itemset
+        #print(localD)
+        #retTree.disp()
+        #print("----------------------------------")
     return retTree, headerTable  # return tree and header table
 
 
@@ -101,8 +103,10 @@ def findPrefixPath(basePat, treeNode):  # treeNode comes from header table
     return condPats
 
 
+
+
 def mineTree(inTree, headerTable, minSup, preFix, freqItemList):
-    bigL = [v[0] for v in sorted(headerTable.items(), key=lambda p: p[1])]  # (sort header table)
+    bigL = [v[0] for v in sorted(headerTable.items(), key=lambda p:p[1][1].count)]  # (sort header table)
     for basePat in bigL:  # start from bottom of header table
         newFreqSet = preFix.copy()
         newFreqSet.add(basePat)
@@ -114,8 +118,8 @@ def mineTree(inTree, headerTable, minSup, preFix, freqItemList):
         myCondTree, myHead = createTree(condPattBases, minSup)
         # print 'head from conditional tree: ', myHead
         if myHead != None:  # 3. mine cond. FP-tree
-            # print 'conditional tree for: ',newFreqSet
-            # myCondTree.disp(1)
+            print ('conditional tree for: ',newFreqSet)
+            myCondTree.disp(1)
             mineTree(myCondTree, myHead, minSup, newFreqSet, freqItemList)
 
 
@@ -141,6 +145,8 @@ initSet = createInitSet(simpDat)
 
 myFPtree, myHeaderTab = createTree(initSet, 3)
 myFPtree.disp()
+prefixPath = findPrefixPath('x', myHeaderTab['x'][1])
+print("prefixPath====",prefixPath)
 print(initSet)
 
 import twitter
@@ -183,10 +189,10 @@ def mineTweets(tweetArr, minSup=5):
     mineTree(myFPtree, myHeaderTab, minSup, set([]), myFreqList)
     return myFreqList
 
-# minSup = 3
+minSup = 3
 # simpDat = loadSimpDat()
 # initSet = createInitSet(simpDat)
 # myFPtree, myHeaderTab = createTree(initSet, minSup)
 # myFPtree.disp()
-# myFreqList = []
-# mineTree(myFPtree, myHeaderTab, minSup, set([]), myFreqList)
+myFreqList = []
+mineTree(myFPtree, myHeaderTab, minSup, set([]), myFreqList)
